@@ -1,7 +1,13 @@
-
+#include <iostream>
 #include "PortMap.h"
 
+
 PortMap::PortMap()
+{
+
+}
+
+PortMap::~PortMap()
 {
 
 }
@@ -24,7 +30,7 @@ void PortMap::addPort(Port port)
     }
 }
 
-PortVector PortMap::getPortByProtocol(int portnum, Protocol protocol)
+Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
 {
     // Map doesn't contain this port
     if (!portMapContains(portnum))
@@ -32,29 +38,42 @@ PortVector PortMap::getPortByProtocol(int portnum, Protocol protocol)
         return PortVector();
     }
 
-    PortVector ret;
+    Port ret;
 
     std::string protocolString = PROTOCOLS[protocol];
 
     // Get only the port objects of protocol protocol
     PortVector thesePorts = ports[portnum];
-    for (int idx = 0; idx < thesePorts.size(); idx++)
+    int numPorts = thesePorts.size();
+
+    std::string services;
+
+    std::cout << "Found " << thesePorts.size() << " ports at port number " << portnum << "\n";
+    for (int idx = 0; idx < numPorts; idx++)
     {
         if (thesePorts[idx].protocol == protocolString)
         {
-            ret.push_back(thesePorts[idx]);
+            services += thesePorts[idx].service;
+            if (idx != numPorts - 1)
+            {
+                services += ", ";
+            }
         }
     }
+
+    ret.number   = portnum;
+    ret.protocol = protocolString;
+    ret.service  = services;
+
+    return ret;
 }
 
-PortVector PortMap::getPortTCP(int portnum)
+Port PortMap::getPortTCP(int portnum)
 {
-    return getPortByProtocol("tcp");
+    return getPortByProtocol(portnum, TCP);
 }
 
-PortVector PortMap::getPortUDP(int portnum)
+Port PortMap::getPortUDP(int portnum)
 {
-    return getPortByProtocol("udp");
+    return getPortByProtocol(portnum, UDP);
 }
-
-

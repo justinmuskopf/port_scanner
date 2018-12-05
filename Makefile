@@ -1,11 +1,46 @@
-all: portmap portscanner main
-	g++ -std=c++11 -o portScanner portmap portscanner main
+GPP = g++
+GPP_ARGS += -std=c++11
+GPP_ARGS += -Wall
+GPP_ARGS += -o
 
-portmap: Port.h
-	g++ -std=c++11 -o portmap -c PortMap.cpp
+PORT = port
+MODULES += $(PORT)
 
-portscanner: Port.h portmap PortMap.h
-	g++ -std=c++11 -o portscanner -c PortScanner.cpp
+PORTMAP = portmap
+MODULES += $(PORTMAP)
 
-main: Port.h portmap portscanner
-	g++ -std=c++11 -o main -c main.cpp
+PORTSCANNER = portscanner
+MODULES += $(PORTSCANNER)
+
+ARGPARSER = argparser
+MODULES += $(ARGPARSER)
+
+MAIN = main
+MODULES += $(MAIN)
+
+RM_CMD = rm -f
+GPP_CMD = $(GPP) $(GPP_ARGS)
+
+
+
+all: clean $(MODULES)
+	$(GPP_CMD) portScanner $(MODULES)
+
+clean: 
+	$(RM_CMD) $(MODULES) portScanner
+
+port: Port.h
+	$(GPP_CMD) $(PORT) -c Port.cpp
+
+portmap: port PortMap.h
+	$(GPP_CMD) $(PORTMAP) -c PortMap.cpp
+
+portscanner: port portmap PortMap.h
+	$(GPP_CMD) $(PORTSCANNER) -c PortScanner.cpp
+
+argparser: ArgParser.h
+	$(GPP_CMD) $(ARGPARSER) -c ArgParser.cpp
+
+main: port portmap portscanner argparser
+	$(GPP_CMD) $(MAIN) -c main.cpp
+

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 enum PortState {OPEN, CLOSED};
 
@@ -16,6 +17,8 @@ struct Port
     std::string protocol;
 
 	PortState state;
+
+    void print();
 };
 
 typedef std::vector<Port> PortVector;

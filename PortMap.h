@@ -11,11 +11,11 @@ class PortMap
         ~PortMap();
 
         void addPort(Port port);
-        PortVector getPortTCP(int portnum);
-        PortVector getPortUDP(int portnum);
+        Port getPortTCP(int portnum);
+        Port getPortUDP(int portnum);
 
     private:
         std::map<int, PortVector> ports;
-        PortVector getPortByProtocol(int portnum, Protocol protocol);
+        Port getPortByProtocol(int portnum, Protocol protocol);
         bool portMapContains(int portnum);
 };
