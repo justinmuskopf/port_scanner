@@ -11,7 +11,7 @@ typedef std::vector<std::string> StringVector;
 class PortScanner
 {
 public:
-    PortScanner(ArgMap argMap);
+    PortScanner(ArgParser argParser);
 	~PortScanner();
 
 	PortVector Scan();
@@ -25,9 +25,13 @@ private:
 
     bool servicesAvailable;
 
+    void addTCPForPort(int portnum);
+    void addUDPForPort(int portnum);
+    void addBothProtocolsForPort(int portnum);
+
     void getPortServicesFromFile(std::string filename);
     Port getPortFromLine(std::string line);
-    Port createPort(int portnum, std::string service = "");
-    void getNecessaryPortsAndIPs(ArgMap argMap);
+    Port createPort(int portnum, std::string protocol);
+    void getNecessaryPortsAndIPs(ArgParser argParser);
 };
 

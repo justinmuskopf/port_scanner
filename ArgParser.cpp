@@ -15,10 +15,17 @@
 #define MIN_PORT 0
 #define MAX_PORT 65535
 
-ArgMap ArgParser::argMap;
-ArgVector ArgParser::argStrings;
-int ArgParser::numArgs = 0;
 
+ArgParser::ArgParser()
+{
+    protocol = "both";
+}
+
+ArgParser::ArgParser(int argc, char *argv[])
+{
+    protocol = "both";
+    ParseArgs(argc, argv);
+}
 
 void die(std::string message, int code)
 {
@@ -108,7 +115,8 @@ void ArgParser::addIPRangeToMap(int hyphenIdx, std::string ipWithRange)
     for (int rangeValue = rangeBegin; rangeValue <= rangeEnd; rangeValue++)
     {
         std::string ipString = ipBase + std::to_string(rangeValue);
-        argMap["ips"].push_back(ipString);
+        std::cout << "adding IP " + ipString + "\n";
+        ips.push_back(ipString);        
     }
 }
 
@@ -151,36 +159,36 @@ void ArgParser::addPortRangeToMap(int hyphenIdx, std::string portWithRange)
     
     for (int rangeValue = beginRange; rangeValue <= endRange; rangeValue++)
     {
+        std::cout << "adding port " << rangeValue << "\n";
         std::string portString = std::to_string(rangeValue);
-        argMap["ports"].push_back(portString);   
+        ports.push_back(portString);
     }
 }
 
+ArgVector ArgParser::getIPs()
+{
+    return ips;
+}
+
+ArgVector ArgParser::getPorts()
+{
+    return ports;
+}
+
+std::string ArgParser::getProtocol()
+{
+    return protocol;
+}  
 
 int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
 {
     indexPanic(beginIdx);
 
-    bool (*validityFunction)(std::string);
-    void (*rangeFunction)(int, std::string);
-    std::string key;
-
-    if (argType == PORT)
-    {
-        validityFunction = &isValidPort;
-        rangeFunction = &addPortRangeToMap;
-        key = "ports";
-    }
-    else
-    {
-        validityFunction = &isValidIP;
-        rangeFunction = &addIPRangeToMap;
-        key = "ips";
-    }
-
     std::string possibleArgs;
 
-    int numArgsTaken = -1;
+    std::string printKey = (argType == IP) ? "IP Addressess" : "Ports";
+
+    int numArgsTaken = 0;
 
     for (int i = beginIdx; i < numArgs; i++)
     {
@@ -188,11 +196,6 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
 
         std::cout << arg << "\n";
 
-        // Can't be an IP
-        if (argType == IP && arg.length() < MIN_IP_LEN)
-        {
-            break;
-        }
 
         if (arg[0] != '-')
         {
@@ -206,11 +209,15 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
 
             numArgsTaken++;
         }
+        else
+        {
+            break;
+        }
     }
 
     if (numArgsTaken == -1)
     {
-        die("Could not find any potential " + key + " in arguments");
+        die("Could not find any potential " + printKey + " in arguments");
     }
 
     std::string currentArg;
@@ -221,16 +228,33 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
         int hyphenIdx = currentArg.find('-');
         if (hyphenIdx != -1)
         {
-            std::cout << "found - in " << currentArg << "\n";
-            rangeFunction(hyphenIdx, currentArg);
+            if (argType == IP)
+            {
+                addIPRangeToMap(hyphenIdx, currentArg);
+            }
+            else
+            {
+                addPortRangeToMap(hyphenIdx, currentArg);
+            }
+
+            continue;
         }
-        else if (validityFunction(currentArg))
+
+        if (argType == IP && isValidIP(currentArg))
         {
-            argMap[key].push_back(currentArg);
+            std::cout << "Adding IP address " + currentArg + " to map";
+            ips.push_back(currentArg);
         }
+        
+        else if (argType == PORT && isValidPort(currentArg))
+        {
+            std::cout << "Adding port " + currentArg + " to map";
+            ports.push_back(currentArg);
+        }
+
         else
         {
-            die("Invalid " + key + " provided: " + currentArg);
+            die("Invalid " + printKey + " provided: " + currentArg);
         }
     }
     
@@ -255,22 +279,24 @@ int ArgParser::getTransportFromArg(int idx)
     indexPanic(idx);
 
     std::string transport = argStrings[idx];
-    std::string protocol;
+    std::string _protocol;
 
     if (transport == "tcp" || transport == "TCP")
     {
-        protocol = "TCP";
+        _protocol = "TCP";
     }
     else if (transport == "udp" || transport == "UDP")
     {
-        protocol = "UDP";
+        _protocol = "UDP";
     }
     else
     {
         die("Invalid transport provided: " + transport);
     }
 
-    argMap["protocol"].push_back(protocol);
+    protocol = _protocol;
+
+    std::cout << "ptrooroo\n";
 
     return idx + 1;
 }
@@ -295,17 +321,15 @@ int ArgParser::getIPsFromFile(int idx)
             die("Invalid IP found in file: " + line);
         }
 
-        argMap["ips"].push_back(line);
+        ips.push_back(line);
     }
 
     return idx + 1;
 }
 
-ArgMap ArgParser::ParseArgs(int argc, char *argv[])
+void ArgParser::ParseArgs(int argc, char *argv[])
 {
     bool foundIP = false;
-
-    argMap = ArgMap();
 
     for (int i = 1; i < argc; i++)
     {
@@ -321,6 +345,8 @@ ArgMap ArgParser::ParseArgs(int argc, char *argv[])
     {
         std::string argString = argStrings[argIdx];
         int nextArg = (argIdx + 1 >= numArgs) ? -1 : argIdx + 1;
+
+        std::cout << "arg " + argString + "\n";
 
         if (argumentIs("help", argString))
         {
@@ -343,12 +369,6 @@ ArgMap ArgParser::ParseArgs(int argc, char *argv[])
         {
             argIdx = getIPsFromFile(nextArg);
         }
-        else
-        {
-            die("Invalid Argument: " + argString);
-        }
-
-        argIdx++;
     }
     
 
@@ -357,5 +377,6 @@ ArgMap ArgParser::ParseArgs(int argc, char *argv[])
         die("Please provide at least one IP address using the '--ip' argument");
     }
 
-    return argMap;
+    std::cout << "extiing with #" << ports.size() << " ports\n";
+
 }

@@ -2,17 +2,18 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <iterator>
 
 #define PORTS_FILE "ports_to_services.txt"
 #define MIN_DEFAULT_PORT 1
 #define MAX_DEFAULT_PORT 1024
 
-PortScanner::PortScanner(ArgMap argMap)
+PortScanner::PortScanner(ArgParser argParser)
 {
     servicesAvailable = true;
 
     getPortServicesFromFile(PORTS_FILE);
-    getNecessaryPortsAndIPs(argMap);
+    getNecessaryPortsAndIPs(argParser);
 }
 
 
@@ -60,73 +61,85 @@ void PortScanner::getPortServicesFromFile(std::string filename)
 }
 
 
-Port PortScanner::createPort(int portnum, std::string service)
+Port PortScanner::createPort(int portnum, std::string protocol)
 {
     Port port;
-    Port.service  = service;
-    Port.protocol = protocol;
-    Port.number   = portnum;    
+    port.protocol = protocol;
+    port.number   = portnum;    
 
     return port;
 }
 
-void PortScanner::getNecessaryPorts(ArgMap argMap)
+void PortScanner::addBothProtocolsForPort(int portnum)
 {
-    std::stringstream portstream;
-
-    StringVector portVector;
-    if (argMap["ports"].size() > 0)
+    if (servicesAvailable)
     {
-        portVector = argMap["ports"];
+        ports.push_back(portMap.getPortTCP(portnum));
+        ports.push_back(portMap.getPortUDP(portnum));
     }
     else
     {
-        for (int i = MIN_PORT_NUMBER; i <= MAX_PORT_NUMBER; i++)
+        ports.push_back(createPort(portnum, "tcp"));
+        ports.push_back(createPort(portnum, "udp"));
+    }
+}
+
+void PortScanner::addTCPForPort(int portnum)
+{   
+    if (servicesAvailable)
+    {
+        ports.push_back(portMap.getPortTCP(portnum));
+    }
+    else
+    {
+        ports.push_back(createPort(portnum, "tcp"));
+    }
+}
+
+void PortScanner::addUDPForPort(int portnum)
+{
+    if (servicesAvailable)
+    {
+        ports.push_back(portMap.getPortUDP(portnum));
+    }
+    else
+    {  
+        ports.push_back(createPort(portnum, "udp"));
+    }
+}
+
+void PortScanner::getNecessaryPortsAndIPs(ArgParser argParser)
+{
+    std::stringstream portstream;
+
+    StringVector portVector = argParser.getPorts();
+    if (portVector.size() == 0)
+    {
+        for (int i = MIN_DEFAULT_PORT; i <= MAX_DEFAULT_PORT; i++)
         {
             portVector.push_back(std::to_string(i));
         }
     }
 
-    StringVector protocol = argMap["protocol"];
-    if (protocol.size() > 0)
-    {
-        protocol = protocol[0];
-    }
-    else
-    {
-        protocol = "both";
-    }
-
-    ips = argMap["ips"];
-
+    std::string protocol = argParser.getProtocol();
     
+    ips = argParser.getIPs();
 
-    std::copy(portVector.begin(), portVector.end(), std::ostream_iterator<std::string>(portstream, " "));
-
-    int portNumber;
-
-    while (portstream >> portNumber)
+    for (int i = 0; i < portVector.size(); i++)
     {
-        if (servicesAvailable)
-        {
-            if (protocol == "both")
-            {
-                ports.append(portMap.getPortTCP(portNumber);
-                ports.append(portMap.getPortUDP(portNumber);
-            }
-            else if (protocol == "tcp")
-            {
-                ports.append(portMap.getPortTCP(portNumber);
-            }
-            else if (protocol == "udp")
-            {
-                ports.append(portMap.getPortUDP(portNumber);
-            }
-        }
-        else
-        {
+        int portNumber = std::stoi(portVector[i]);
 
+        if (protocol == "both")
+        {
+            addBothProtocolsForPort(portNumber);
+        }
+        else if (protocol == "tcp")
+        {
+            addTCPForPort(portNumber);
+        }
+        else if (protocol == "udp")
+        {
+            addUDPForPort(portNumber);
         }
     }
-
 }

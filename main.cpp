@@ -6,9 +6,9 @@
 int main(int argc, char *argv[])
 {
 
-    ArgMap args = ArgParser::ParseArgs(argc, argv);
+    ArgParser parser(argc, argv);
 
-    PortScanner portScanner(args);
+    PortScanner portScanner(parser);
 
 	return 0;
 }

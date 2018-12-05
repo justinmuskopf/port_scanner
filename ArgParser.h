@@ -13,26 +13,35 @@ class ArgParser
 {
     public:
         ArgParser();
-        static ArgMap ParseArgs(int argc, char *argv[]);
+        ArgParser(int argc, char *argv[]);
+        void ParseArgs(int argc, char *argv[]);
+        ArgVector getPorts();
+        ArgVector getIPs();
+        std::string getProtocol();
     private:
-        static ArgVector argStrings;
-        static ArgMap argMap;
-        static int numArgs;
+        ArgVector argStrings;
+        ArgMap argMap;
+        int numArgs;
+
+        ArgVector ports;
+        ArgVector ips;
+        std::string protocol;
 
         enum Arg {PORT, IP};
 
-        static int  getArgumentFromArgs(Arg argType, int beginidx);
-        static int  getPortsFromArgs(int beginIdx);
-        static int  getIPAddressesFromArgs(int beginIdx);
-        static int  getIPsFromFile(int idx);
-        static int  getTransportFromArg(int idx);
-        static void indexPanic(int idx);
-        static void printHelp();
-        static void addIPRangeToMap(int hyphenIdx, std::string);
-        static void addPortRangeToMap(int hyphenIdx, std::string);
-        static bool argumentIs(std::string want, std::string arg);
-        static bool isValidIP(std::string ip);
-        static bool isValidPort(std::string portnum);
-        static bool isInvalidPort(int portnum);
+
+        int  getArgumentFromArgs(Arg argType, int beginidx);
+        int  getPortsFromArgs(int beginIdx);
+        int  getIPAddressesFromArgs(int beginIdx);
+        int  getIPsFromFile(int idx);
+        int  getTransportFromArg(int idx);
+        void indexPanic(int idx);
+        void printHelp();
+        void addIPRangeToMap(int hyphenIdx, std::string);
+        void addPortRangeToMap(int hyphenIdx, std::string);
+        bool argumentIs(std::string want, std::string arg);
+        bool isValidIP(std::string ip);
+        bool isValidPort(std::string portnum);
+        bool isInvalidPort(int portnum);
 };
 

@@ -35,7 +35,7 @@ Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
     // Map doesn't contain this port
     if (!portMapContains(portnum))
     {
-        return PortVector();
+        return Port();
     }
 
     Port ret;
@@ -48,7 +48,6 @@ Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
 
     std::string services;
 
-    std::cout << "Found " << thesePorts.size() << " ports at port number " << portnum << "\n";
     for (int idx = 0; idx < numPorts; idx++)
     {
         if (thesePorts[idx].protocol == protocolString)
