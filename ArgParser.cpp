@@ -3,7 +3,7 @@
     Instructor: Hoffman
     Course: CSCE 4550, Fall 2018
     Assignment: Project 3
-*/
+ */
 #include <arpa/inet.h>
 #include <iostream>
 #include <cstdlib>
@@ -51,11 +51,11 @@ void die(std::string message, int code)
 void ArgParser::printHelp()
 {
     std::cout << "PORTSCANNER HELP:\n"
-                 "--help      (-h): Display this help screen\n"
-                 "--port      (-p): Specify the port(s) to scan, either hyphenated (e.g. 10-100), or in a comma separated list (e.g. 32, 23, 55)\n"
-                 "--ip        (-i): Specify a set of IP(s) to run the scan on by a hyphenated list on the same subnet (e.g. 192.168.254.10-100), or an individual IP address\n"
-                 "--file      (-f): Specify a set of IP(s) to run the scan on by providing a filename that contains a line-delimited set of IP addresses\n"
-                 "--transport (-t): Explicitly decide which protocol to check on each of the ports: either TCP or UDP\n";
+        "--help      (-h): Display this help screen\n"
+        "--port      (-p): Specify the port(s) to scan, either hyphenated (e.g. 10-100), or in a comma separated list (e.g. 32, 23, 55)\n"
+        "--ip        (-i): Specify a set of IP(s) to run the scan on by a hyphenated list on the same subnet (e.g. 192.168.254.10-100), or an individual IP address\n"
+        "--file      (-f): Specify a set of IP(s) to run the scan on by providing a filename that contains a line-delimited set of IP addresses\n"
+        "--transport (-t): Explicitly decide which protocol to check on each of the ports: either TCP or UDP\n";
     die();
 }
 
@@ -64,7 +64,7 @@ bool ArgParser::argumentIs(std::string want, std::string arg)
 {
     // Get first  character from want
     std::string first = std::string(1, want[0]);
-    
+
     // Compose short argument and long argument
     std::string shortArg = "-" + first;
     std::string longArg  = "--" + want;
@@ -74,7 +74,7 @@ bool ArgParser::argumentIs(std::string want, std::string arg)
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -98,7 +98,7 @@ bool ArgParser::isValidIP(std::string ip)
     {
         return false;
     }
- 
+
     return true;   
 }
 
@@ -180,7 +180,7 @@ void ArgParser::addPortRangeToMap(int hyphenIdx, std::string portWithRange)
     {
         die("Invalid Port range provided: " + portWithRange);
     }
-    
+
     // Add each of the string port values to the vector
     for (int rangeValue = beginRange; rangeValue <= endRange; rangeValue++)
     {
@@ -225,7 +225,7 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
         // Not a new argument yet
         if (arg[0] != '-')
         {
-        
+
             // Comma delimited, make 'em spaces
             if (arg.find(',') >= 0)
             {
@@ -277,7 +277,7 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
         {
             ips.push_back(currentArg);
         }
-        
+
         // Sailin' from port to port
         else if (argType == PORT && isValidPort(currentArg))
         {
@@ -289,7 +289,7 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
             die("Invalid " + printKey + " provided: " + currentArg);
         }
     }
-    
+
     return beginIdx + numArgsTaken;
 }
 
@@ -427,7 +427,7 @@ void ArgParser::ParseArgs(int argc, char *argv[])
             die("Invalid argument provided: " + argString);
         }
     }
-    
+
 
     if (foundIP == false)
     {

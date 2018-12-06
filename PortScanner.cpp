@@ -3,7 +3,7 @@
     Instructor: Hoffman
     Course: CSCE 4550, Fall 2018
     Assignment: Project 3
-*/
+ */
 #include "PortScanner.h"
 #include <fstream>
 #include <iostream>
@@ -179,7 +179,7 @@ void PortScanner::getNecessaryPortsAndIPs(ArgParser argParser)
 
     // Get protocol ("TCP" || "UDP") from parser
     protocol = argParser.getProtocol();
-    
+
     // Get IPs from parser
     ips = argParser.getIPs();
 
@@ -207,33 +207,33 @@ void PortScanner::getNecessaryPortsAndIPs(ArgParser argParser)
 PortState PortScanner::checkTCPPort(int portnum, std::string ip)
 {
 
-	int sock;
-	
+    int sock;
+
     struct sockaddr_in svr_addr;
-	
+
     // Create socket
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock < 0) 
-	{
-		die("Error opening TCP socket");
-	}
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) 
+    {
+        die("Error opening TCP socket");
+    }
 
-	// Zero bytes of svr_addr and assign characteristics
-	bzero((char *) &svr_addr, sizeof(svr_addr));
-	svr_addr.sin_family = AF_INET;
+    // Zero bytes of svr_addr and assign characteristics
+    bzero((char *) &svr_addr, sizeof(svr_addr));
+    svr_addr.sin_family = AF_INET;
     svr_addr.sin_addr.s_addr = inet_addr(ip.c_str());
-	svr_addr.sin_port = htons(portnum);
+    svr_addr.sin_port = htons(portnum);
 
-	// Connect to server
-	if (connect(sock,(sockaddr *) &svr_addr,sizeof(svr_addr)) < 0) 
-	{
+    // Connect to server
+    if (connect(sock,(sockaddr *) &svr_addr,sizeof(svr_addr)) < 0) 
+    {
         close(sock);
         return CLOSED;
-	}
+    }
 
     // TCP RST (I think...)
     shutdown(sock, SHUT_RDWR);
-    
+
     // DOUBLE UP
     close(sock);    
 
@@ -265,20 +265,20 @@ PortState PortScanner::checkUDPPort(int portnum, std::string ip)
     FD_ZERO(&fds);
     FD_SET(sock, &fds);
 
-	// Zero bytes of svr_addr and assign characteristics
-	bzero((char *)&svr_addr, sizeof(svr_addr));
-	svr_addr.sin_family = AF_INET;
+    // Zero bytes of svr_addr and assign characteristics
+    bzero((char *)&svr_addr, sizeof(svr_addr));
+    svr_addr.sin_family = AF_INET;
     svr_addr.sin_addr.s_addr = inet_addr(ip.c_str());
-	svr_addr.sin_port = htons(portnum);
- 
+    svr_addr.sin_port = htons(portnum);
+
     size_t svr_len = sizeof(svr_addr);
-    
-	// Connect to server
-	if (connect(sock, (sockaddr *)&svr_addr, sizeof(svr_addr)) < 0) 
-	{
+
+    // Connect to server
+    if (connect(sock, (sockaddr *)&svr_addr, sizeof(svr_addr)) < 0) 
+    {
         close(sock);
         return CLOSED;
-	}
+    }
 
     /*============================================*/
     /*    BEWARE: THIS IS WHERE IT GETS HAIRY     */
@@ -341,13 +341,13 @@ void PortScanner::printScanReportForIP(int idx)
         {
             tcp.push_back(port);
         }
-        
+
         if (port.protocol == PROTOCOLS[UDP])
         {
             udp.push_back(port);
         }
     }
-    
+
     // Gross and ugly cout stuff
     std::cout << "------------------------------------------------\n";
     std::cout << "IP: " << ips[idx] << "\n";

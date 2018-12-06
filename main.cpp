@@ -3,7 +3,7 @@
     Instructor: Hoffman
     Course: CSCE 4550, Fall 2018
     Assignment: Project 3
-*/
+ */
 #include <cstdlib>
 #include <iostream>
 #include "PortScanner.h"
@@ -20,5 +20,5 @@ int main(int argc, char *argv[])
 
     portScanner.PrintScanReport();
 
-	return 0;
+    return 0;
 }

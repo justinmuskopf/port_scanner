@@ -3,7 +3,7 @@
     Instructor: Hoffman
     Course: CSCE 4550, Fall 2018
     Assignment: Project 3
-*/
+ */
 #pragma once
 
 #include <string>
@@ -16,13 +16,13 @@ enum Protocol {TCP, UDP};
 
 struct Port
 {
-	int number;
+    int number;
 
-	std::string service;
+    std::string service;
 
     std::string protocol;
 
-	PortState state;
+    PortState state;
 
     void print();
 };

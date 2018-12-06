@@ -3,7 +3,7 @@
     Instructor: Hoffman
     Course: CSCE 4550, Fall 2018
     Assignment: Project 3
-*/
+ */
 #include <iostream>
 #include "PortMap.h"
 
@@ -42,7 +42,7 @@ Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
         Port empty;
         empty.number = portnum;
         empty.protocol = PROTOCOLS[protocol];
-        
+
         return empty;
     }
 

@@ -3,7 +3,7 @@
     Instructor: Hoffman
     Course: CSCE 4550, Fall 2018
     Assignment: Project 3
-*/
+ */
 #pragma once
 
 #include <string>
@@ -16,37 +16,37 @@ typedef std::vector<std::string> StringVector;
 
 class PortScanner
 {
-public:
-    PortScanner(ArgParser argParser);
-	~PortScanner();
+    public:
+        PortScanner(ArgParser argParser);
+        ~PortScanner();
 
-	std::vector<PortVector> Scan();
-    void PrintScanReport();
+        std::vector<PortVector> Scan();
+        void PrintScanReport();
 
-private:
-    PortMap portMap;
-    StringVector ips;
-    PortVector ports;
-    
-    std::string protocol;
+    private:
+        PortMap portMap;
+        StringVector ips;
+        PortVector ports;
 
-    std::vector<PortVector> portsByIP;
+        std::string protocol;
 
-    bool servicesAvailable;
+        std::vector<PortVector> portsByIP;
 
-    void addTCPForPort(int portnum);
-    void addUDPForPort(int portnum);
-    void addBothProtocolsForPort(int portnum);
+        bool servicesAvailable;
 
-    PortState checkTCPPort(int portnum, std::string ip);
-    PortState checkUDPPort(int portnuum, std::string ip);
+        void addTCPForPort(int portnum);
+        void addUDPForPort(int portnum);
+        void addBothProtocolsForPort(int portnum);
 
-    PortVector scanPortsForIP(std::string ip);
+        PortState checkTCPPort(int portnum, std::string ip);
+        PortState checkUDPPort(int portnuum, std::string ip);
 
-    void printScanReportForIP(int idx);
-    void getPortServicesFromFile(std::string filename);
-    Port getPortFromLine(std::string line);
-    Port createPort(int portnum, std::string protocol);
-    void getNecessaryPortsAndIPs(ArgParser argParser);
+        PortVector scanPortsForIP(std::string ip);
+
+        void printScanReportForIP(int idx);
+        void getPortServicesFromFile(std::string filename);
+        Port getPortFromLine(std::string line);
+        Port createPort(int portnum, std::string protocol);
+        void getNecessaryPortsAndIPs(ArgParser argParser);
 };
 
