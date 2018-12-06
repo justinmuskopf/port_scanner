@@ -10,5 +10,7 @@ int main(int argc, char *argv[])
 
     PortScanner portScanner(parser);
 
+    portScanner.Scan();
+
 	return 0;
 }

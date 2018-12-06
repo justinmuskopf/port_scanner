@@ -14,7 +14,7 @@ public:
     PortScanner(ArgParser argParser);
 	~PortScanner();
 
-	PortVector Scan();
+	std::vector<PortVector> Scan();
 
 private:
     PortMap portMap;
@@ -28,6 +28,11 @@ private:
     void addTCPForPort(int portnum);
     void addUDPForPort(int portnum);
     void addBothProtocolsForPort(int portnum);
+
+    PortState checkTCPPort(int portnum, std::string ip);
+    PortState checkUDPPort(int portnuum, std::string ip);
+
+    PortVector scanPortsForIP(std::string ip);
 
     void getPortServicesFromFile(std::string filename);
     Port getPortFromLine(std::string line);

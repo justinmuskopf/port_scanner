@@ -115,7 +115,6 @@ void ArgParser::addIPRangeToMap(int hyphenIdx, std::string ipWithRange)
     for (int rangeValue = rangeBegin; rangeValue <= rangeEnd; rangeValue++)
     {
         std::string ipString = ipBase + std::to_string(rangeValue);
-        std::cout << "adding IP " + ipString + "\n";
         ips.push_back(ipString);        
     }
 }
@@ -159,7 +158,6 @@ void ArgParser::addPortRangeToMap(int hyphenIdx, std::string portWithRange)
     
     for (int rangeValue = beginRange; rangeValue <= endRange; rangeValue++)
     {
-        std::cout << "adding port " << rangeValue << "\n";
         std::string portString = std::to_string(rangeValue);
         ports.push_back(portString);
     }
@@ -193,9 +191,6 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
     for (int i = beginIdx; i < numArgs; i++)
     {
         std::string arg = argStrings[i];
-
-        std::cout << arg << "\n";
-
 
         if (arg[0] != '-')
         {
@@ -242,13 +237,11 @@ int ArgParser::getArgumentFromArgs(Arg argType, int beginIdx)
 
         if (argType == IP && isValidIP(currentArg))
         {
-            std::cout << "Adding IP address " + currentArg + " to map";
             ips.push_back(currentArg);
         }
         
         else if (argType == PORT && isValidPort(currentArg))
         {
-            std::cout << "Adding port " + currentArg + " to map";
             ports.push_back(currentArg);
         }
 
@@ -296,7 +289,7 @@ int ArgParser::getTransportFromArg(int idx)
 
     protocol = _protocol;
 
-    std::cout << "ptrooroo\n";
+    std::cout << protocol << "\n";
 
     return idx + 1;
 }
@@ -346,8 +339,6 @@ void ArgParser::ParseArgs(int argc, char *argv[])
         std::string argString = argStrings[argIdx];
         int nextArg = (argIdx + 1 >= numArgs) ? -1 : argIdx + 1;
 
-        std::cout << "arg " + argString + "\n";
-
         if (argumentIs("help", argString))
         {
             printHelp();
@@ -369,6 +360,10 @@ void ArgParser::ParseArgs(int argc, char *argv[])
         {
             argIdx = getIPsFromFile(nextArg);
         }
+        else
+        {
+            die("Invalid argument provided: " + argString);
+        }
     }
     
 
@@ -376,7 +371,4 @@ void ArgParser::ParseArgs(int argc, char *argv[])
     {
         die("Please provide at least one IP address using the '--ip' argument");
     }
-
-    std::cout << "extiing with #" << ports.size() << " ports\n";
-
 }
