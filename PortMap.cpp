@@ -1,15 +1,19 @@
+/*
+    Author: Justin Muskopf
+    Instructor: Hoffman
+    Course: CSCE 4550, Fall 2018
+    Assignment: Project 3
+*/
 #include <iostream>
 #include "PortMap.h"
 
 
 PortMap::PortMap()
 {
-
 }
 
 PortMap::~PortMap()
 {
-
 }
 
 bool PortMap::portMapContains(int portnum)
@@ -60,6 +64,7 @@ Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
         }
     }
 
+    // Init this port and return
     ret.number   = portnum;
     ret.protocol = protocolString;
     ret.service  = services.substr(0, services.length() - 2);
