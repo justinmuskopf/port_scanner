@@ -5,7 +5,7 @@
 
 enum PortState {OPEN, CLOSED};
 
-const std::string PROTOCOLS[] = {"TCP", "UDP"};
+const std::string PROTOCOLS[] = {"tcp", "udp"};
 enum Protocol {TCP, UDP};
 
 struct Port

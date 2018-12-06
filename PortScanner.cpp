@@ -6,19 +6,19 @@
 #include <cstring>
 #include <unistd.h>
 #include <errno.h>
-
+#include <iomanip>
 #include <cstdlib>
-
+#include <sys/time.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 
-
 #define PORTS_FILE "ports_to_services.txt"
 #define MIN_DEFAULT_PORT 1
 #define MAX_DEFAULT_PORT 1024
+#define UDP_TIMEOUT 1
 
 PortScanner::PortScanner(ArgParser argParser)
 {
@@ -43,15 +43,11 @@ PortVector PortScanner::scanPortsForIP(std::string ip)
     {
         if (port.protocol == PROTOCOLS[TCP])
         {
-            std::cout << "Scanning TCP Port " << port.number << "\n";
             port.state = checkTCPPort(port.number, ip);
-            std::cout <<"... " << port.state << "\n";
         }
         else if (port.protocol == PROTOCOLS[UDP])
         {
-            std::cout << "Scanning UDP Port " << port.number << "\n";
             port.state = checkUDPPort(port.number, ip);
-            std::cout <<"... " << port.state << "\n";
         }
 
         ipPorts.push_back(port);
@@ -62,8 +58,6 @@ PortVector PortScanner::scanPortsForIP(std::string ip)
 
 std::vector<PortVector> PortScanner::Scan()
 {
-    std::vector<PortVector> portsByIP;
- 
     for (std::string ip : ips)
     {
         portsByIP.push_back(scanPortsForIP(ip));
@@ -106,7 +100,7 @@ void PortScanner::getPortServicesFromFile(std::string filename)
     while (getline(file, line))
     {
         Port port = getPortFromLine(line);
-        
+
         portMap.addPort(port);
     }
 }
@@ -164,7 +158,7 @@ void PortScanner::getNecessaryPortsAndIPs(ArgParser argParser)
         }
     }
 
-    std::string protocol = argParser.getProtocol();
+    protocol = argParser.getProtocol();
     
     ips = argParser.getIPs();
 
@@ -226,11 +220,13 @@ PortState PortScanner::checkUDPPort(int portnum, std::string ip)
 {
     int sock;
 
-
     struct sockaddr_in this_addr;
     struct sockaddr_in svr_addr;
 
-    uint8_t buffer[5];
+    timeval timeout;
+    timeout.tv_sec = 0.5;
+
+    bool shouldRun = false;
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
@@ -238,51 +234,100 @@ PortState PortScanner::checkUDPPort(int portnum, std::string ip)
         die("Error opening UDP socket");
     }
 
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(sock, &fds);
+
 	// Zero bytes of svr_addr and assign characteristics
 	bzero((char *)&svr_addr, sizeof(svr_addr));
 	svr_addr.sin_family = AF_INET;
     svr_addr.sin_addr.s_addr = inet_addr(ip.c_str());
 	svr_addr.sin_port = htons(portnum);
  
-    bzero((char *)&this_addr, sizeof(this_addr));
-    svr_addr.sin_family = AF_INET;
-    svr_addr.sin_addr.s_addr = INADDR_ANY;
-    svr_addr.sin_port = 0;
-
-
     size_t svr_len = sizeof(svr_addr);
-    size_t this_len = sizeof(this_addr);
-    if (bind(sock, (sockaddr *)&this_addr, this_len) == -1)
-    {
+    
+	// Connect to server
+	if (connect(sock, (sockaddr *)&svr_addr, sizeof(svr_addr)) < 0) 
+	{
         close(sock);
-        die("Could not bind socket");
-    }
+        return CLOSED;
+	}
 
-/*    if (sendto(sock, "hello", 5, 0, (sockaddr *)&svr_addr, svr_len)  < 0)
+    char buffer[5];
+    bzero((char *)buffer, sizeof(buffer));
+    if (sendto(sock, buffer, strlen(buffer), 0, (sockaddr *)&svr_addr, svr_len)  < 0)
     {
-        if (errno == EHOSTUNREACH || errno == EHOSTDOWN)
-        {
-            std::cout << "CAUGHT YA YE BASTEARD\n";
-            return CLOSED;
-        }
         std::cout << "Could not send byte\n";
         close(sock);
         return CLOSED;
-    }*/
-
-
-    if (recvfrom(sock, buffer, 4, 0, (sockaddr *)&svr_addr, &svr_len) < 0)
-    {
-        std::cout << "receive failed\n";
-        close(sock);
-        return CLOSED;
     }
 
-    for (int i = 0; i < 5; i++)
+    int max_fd = sock + 1;
+    int sel;
+    if ((sel = select(max_fd, &fds, NULL, NULL, &timeout)) > 0)
     {
-        std::cout << buffer[i] << " ";
+
+        std::cout << buffer << std::endl;
     }
-    std::cout << "\n";
+    else if (sel == 0)
+    {
+        return OPEN;
+    }
+    else
+    {
+       return CLOSED;
+    }
 
     return OPEN;
+}
+
+
+void PortScanner::printScanReportForIP(int idx)
+{
+    PortVector tcp, udp;
+    for (Port port : portsByIP[idx])
+    {
+        if (port.protocol == PROTOCOLS[TCP])
+        {
+            tcp.push_back(port);
+        }
+        
+        if (port.protocol == PROTOCOLS[UDP])
+        {
+            udp.push_back(port);
+        }
+    }
+    
+    std::cout << "------------------------------------------------\n";
+    std::cout << "IP: " << ips[idx] << "\n";
+    std::cout << "------------------------------------------------\n";
+    std::cout << " TCP PORT   STATE   SERVICE\n";
+    for (Port port : tcp)
+    {
+        if (port.state != OPEN)
+        {
+            continue;
+        }
+
+        std::cout << " " << port.number << "\t" << "OPEN\t" << port.service << "\n";
+    }
+
+    if (protocol == "both")
+    {
+        std::cout << "------------------------------------------------\n";
+        std::cout << "UDP PORT\tSTATE\tSERVICE\n";
+        for (Port port : udp)
+        {
+            std::cout << port.number << "\t" << "OPEN\t" << port.service << "\n";
+        }
+    }
+}
+
+
+void PortScanner::PrintScanReport()
+{
+    for (int i = 0; i < ips.size(); i++)
+    {
+        printScanReportForIP(i);
+    }
 }

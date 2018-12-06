@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <fstream>
 #include "ArgParser.h"
+#include "Port.h"
 
 #define MAX_ARGS 5
 #define MIN_IP_LEN sizeof("0.0.0.0")
@@ -276,11 +277,11 @@ int ArgParser::getTransportFromArg(int idx)
 
     if (transport == "tcp" || transport == "TCP")
     {
-        _protocol = "TCP";
+        _protocol = PROTOCOLS[TCP];
     }
     else if (transport == "udp" || transport == "UDP")
     {
-        _protocol = "UDP";
+        _protocol = PROTOCOLS[UDP];
     }
     else
     {

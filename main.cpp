@@ -12,5 +12,7 @@ int main(int argc, char *argv[])
 
     portScanner.Scan();
 
+    portScanner.PrintScanReport();
+
 	return 0;
 }

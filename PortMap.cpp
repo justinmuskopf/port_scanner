@@ -35,7 +35,11 @@ Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
     // Map doesn't contain this port
     if (!portMapContains(portnum))
     {
-        return Port();
+        Port empty;
+        empty.number = portnum;
+        empty.protocol = PROTOCOLS[protocol];
+        
+        return empty;
     }
 
     Port ret;
@@ -52,17 +56,13 @@ Port PortMap::getPortByProtocol(int portnum, Protocol protocol)
     {
         if (thesePorts[idx].protocol == protocolString)
         {
-            services += thesePorts[idx].service;
-            if (idx != numPorts - 1)
-            {
-                services += ", ";
-            }
+            services += thesePorts[idx].service + ", ";
         }
     }
 
     ret.number   = portnum;
     ret.protocol = protocolString;
-    ret.service  = services;
+    ret.service  = services.substr(0, services.length() - 2);
 
     return ret;
 }

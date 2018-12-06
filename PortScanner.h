@@ -15,6 +15,7 @@ public:
 	~PortScanner();
 
 	std::vector<PortVector> Scan();
+    void PrintScanReport();
 
 private:
     PortMap portMap;
@@ -22,6 +23,8 @@ private:
     PortVector ports;
     
     std::string protocol;
+
+    std::vector<PortVector> portsByIP;
 
     bool servicesAvailable;
 
@@ -34,6 +37,7 @@ private:
 
     PortVector scanPortsForIP(std::string ip);
 
+    void printScanReportForIP(int idx);
     void getPortServicesFromFile(std::string filename);
     Port getPortFromLine(std::string line);
     Port createPort(int portnum, std::string protocol);

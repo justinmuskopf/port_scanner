@@ -8958,8 +8958,8 @@ presence 5298 tcp XMPP
 presence 5298 udp XMPP
 nlg-data 5299 tcp NLG
 nlg-data 5299 udp NLG
-domain 53 tcp Domain
-domain 53 udp Domain
+DNS 53 tcp Domain
+DNS 53 udp Domain
 courier 530 tcp rpc
 courier 530 udp rpc
 hacl-hb 5300 tcp HA
